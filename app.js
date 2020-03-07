@@ -1,4 +1,5 @@
 const axios = require('axios');
+const mqtt = require('mqtt');
 const start_time_stamp = new Date();
 
 const main_loop = () => {
@@ -21,13 +22,23 @@ const main_loop = () => {
                 joints.push(value);
             }
 
+            let data = {
+                time: time_stamp,
+                joints: joints
+            };
+
+            mqtt_client.publish('joints', JSON.stringify(data));
+
             console.log(time_stamp, joints, delta, "ms");
             });
         main_loop();
     }, 10);
 }
 
-main_loop();
-       
+const mqtt_client = mqtt.connect('wss://mqtt-broker-sanna.herokuapp.com');
+mqtt_client.on('connect', () => {
+    console.log('connected to mqtt broker');
+    main_loop();
+});
 
    
